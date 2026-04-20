@@ -1,0 +1,114 @@
+// Cores por partido para gráficos
+export const PARTIDO_CORES: Record<string, string> = {
+  PT: '#e02424', PL: '#1e3a5f', 'UNIÃO': '#38bdf8', 'UNIÃO BRASIL': '#38bdf8',
+  MDB: '#16a34a', PP: '#f97316', PSD: '#7c3aed', PSDB: '#fbbf24',
+  REPUBLICANOS: '#0891b2', SOLIDARIEDADE: '#db2777', PDT: '#065f46',
+  PSOL: '#dc2626', PODE: '#6366f1', PODEMOS: '#6366f1', AVANTE: '#0d9488',
+  CIDADANIA: '#8b5cf6', PCdoB: '#b91c1c', 'PC do B': '#b91c1c',
+  REDE: '#059669', PSB: '#ea580c', NOVO: '#f59e0b', PMN: '#14b8a6',
+  DC: '#6b21a8', PRTB: '#047857', PMB: '#2563eb', PROS: '#d97706',
+  PATRIOTA: '#15803d', PSC: '#7c2d12', PRB: '#0369a1', DEM: '#3b82f6',
+  PHS: '#a855f7', PTC: '#14532d', PPL: '#d946ef', PRP: '#ca8a04',
+  PTB: '#16a34a', PV: '#22c55e', PSDC: '#7e22ce',
+};
+
+function hashColor(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) { hash = ((hash << 5) - hash) + str.charCodeAt(i); hash |= 0; }
+  const h = Math.abs(hash) % 360;
+  return `hsl(${h}, 55%, 50%)`;
+}
+
+export function getPartidoCor(partido: string): string {
+  if (!partido) return '#6b7280';
+  return PARTIDO_CORES[partido.toUpperCase().trim()] || hashColor(partido);
+}
+
+export function formatNumber(n: number | null | undefined): string {
+  if (n == null) return '0';
+  return n.toLocaleString('pt-BR');
+}
+
+export function formatPercent(value: number | null | undefined, decimals = 1): string {
+  if (value == null) return '0%';
+  return value.toLocaleString('pt-BR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) + '%';
+}
+
+export function formatDate(date: string | null | undefined): string {
+  if (!date) return '-';
+  const d = new Date(date);
+  return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+export function formatBRL(val: number): string {
+  return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+export function formatBRLCompact(val: number): string {
+  if (val >= 1_000_000_000) return `R$ ${(val / 1_000_000_000).toFixed(1)}B`;
+  if (val >= 1_000_000) return `R$ ${(val / 1_000_000).toFixed(1)}M`;
+  if (val >= 1_000) return `R$ ${(val / 1_000).toFixed(0)}k`;
+  return `R$ ${val.toFixed(0)}`;
+}
+
+/** Traduz situação eleitoral do TSE para linguagem humana */
+export function traduzirSituacao(sit: string | null | undefined): string {
+  if (!sit) return 'Não definido';
+  const s = sit.toUpperCase().trim();
+  if (s.includes('ELEITO') && s.includes('QP')) return 'Eleito por quociente partidário';
+  if (s.includes('ELEITO') && s.includes('MÉDIA')) return 'Eleito por média';
+  if (s.includes('ELEITO') && !s.includes('NÃO')) return 'Eleito';
+  if (s.includes('NÃO ELEIT')) return 'Não eleito';
+  if (s.includes('SUPLENTE')) return 'Suplente';
+  if (s.includes('2º TURNO') || s.includes('2O TURNO')) return '2º turno';
+  if (s.includes('CASSAD')) return 'Cassado';
+  if (s.includes('INDEFERIDO')) return 'Indeferido';
+  if (s.includes('RENÚNCIA') || s.includes('RENUNCIA')) return 'Renunciou';
+  if (s.includes('FALECID')) return 'Falecido';
+  if (s.includes('SUBSTITUÍD') || s.includes('SUBSTITUID')) return 'Substituído';
+  if (s.includes('DEFERIDO')) return 'Deferido';
+  if (s.includes('APTO') || s.includes('APTIDÃO')) return 'Apto';
+  if (s.includes('INAPTO')) return 'Inapto';
+  // Retorna capitalizado se não mapeou
+  return sit.charAt(0).toUpperCase() + sit.slice(1).toLowerCase();
+}
+
+export function getSituacaoBadge(situacao: string | null): { bg: string; text: string; label: string } {
+  const label = traduzirSituacao(situacao);
+  const s = (situacao || '').toUpperCase().trim();
+  if (s.includes('ELEITO') && !s.includes('NÃO'))
+    return { bg: 'bg-success/20', text: 'text-success', label };
+  if (s.includes('SUPLENTE'))
+    return { bg: 'bg-warning/20', text: 'text-warning', label };
+  if (s.includes('2º TURNO') || s.includes('2O TURNO'))
+    return { bg: 'bg-[hsl(var(--info))]/20', text: 'text-[hsl(var(--info))]', label };
+  if (s.includes('CASSAD') || s.includes('INDEFERIDO'))
+    return { bg: 'bg-destructive/20', text: 'text-destructive', label };
+  if (s.includes('RENÚNCIA') || s.includes('RENUNCIA'))
+    return { bg: 'bg-muted', text: 'text-muted-foreground', label };
+  return { bg: 'bg-muted/50', text: 'text-muted-foreground', label };
+}
+
+export const ANOS_DISPONIVEIS = [2012, 2014, 2016, 2018, 2020, 2022, 2024];
+
+export const CARGOS_DISPONIVEIS = [
+  'Presidente', 'Governador', 'Senador', 'Deputado Federal',
+  'Deputado Estadual', 'Deputado Distrital', 'Prefeito', 'Vice-Prefeito', 'Vereador',
+];
+
+export function getAvatarColor(name: string): string { return hashColor(name || 'X'); }
+export function getInitial(name: string): string { return (name || '?').charAt(0).toUpperCase(); }
+
+export const CHART_COLORS = [
+  'hsl(190, 80%, 45%)', 'hsl(338, 72%, 60%)', 'hsl(156, 72%, 40%)',
+  'hsl(45, 93%, 50%)', 'hsl(280, 60%, 55%)', 'hsl(25, 85%, 55%)',
+  'hsl(160, 60%, 45%)', 'hsl(320, 65%, 50%)', 'hsl(200, 80%, 55%)',
+  'hsl(10, 75%, 50%)', 'hsl(240, 50%, 55%)', 'hsl(80, 60%, 45%)',
+];
+
+export const SITUACAO_CORES: Record<string, string> = {
+  'ELEITO': 'hsl(156, 72%, 40%)', 'ELEITO POR QP': 'hsl(156, 60%, 50%)',
+  'ELEITO POR MÉDIA': 'hsl(156, 50%, 55%)', 'SUPLENTE': 'hsl(45, 93%, 50%)',
+  'NÃO ELEITO': 'hsl(0, 50%, 55%)', '2º TURNO': 'hsl(200, 80%, 55%)',
+  'NÃO DEFINIDO': 'hsl(210, 15%, 45%)',
+};

@@ -1,0 +1,184 @@
+/* Fonts loaded via <link preload> in index.html for non-blocking render */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* MODO CLARO - Dossiê 360º LinkedIn Style */
+    --background: 0 0% 100%; /* bg-white */
+    --foreground: 220 17% 7%; /* texto escuro */
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 17% 7%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 17% 7%;
+
+    --primary: 330 81% 60%; /* #EC4899 - Sarelli Pink */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 42 47% 59%; /* #C8AA64 - Accent Gold */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 14% 96%; /* bg-slate-100 */
+    --muted-foreground: 220 8% 46%; /* text-slate-500 */
+
+    --accent: 42 47% 59%; /* Accent Gold */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 156 72% 40%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 45 93% 50%;
+    --warning-foreground: 0 0% 10%;
+
+    --info: 200 80% 55%;
+    --info-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%; /* border-slate-200 */
+    --input: 220 13% 91%;
+    --ring: 330 81% 60%;
+
+    --radius: 1rem; /* rounded-2xl = 16px */
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 17% 7%;
+    --sidebar-primary: 330 81% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 17% 7%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 330 81% 60%;
+
+    --chart-1: 330 81% 60%;
+    --chart-2: 42 47% 59%;
+    --chart-3: 156 72% 40%;
+    --chart-4: 45 93% 50%;
+    --chart-5: 280 60% 55%;
+  }
+}
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 600;
+  }
+  code, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
+
+/* Table striped rows */
+.table-striped tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.3);
+}
+.table-striped tbody tr:hover {
+  background-color: hsl(var(--primary) / 0.08);
+}
+
+/* Glow effects for KPI cards */
+.kpi-glow {
+  box-shadow: 0 0 20px -5px hsl(var(--primary) / 0.15);
+}
+
+/* Data grid */
+.data-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Metric highlight */
+.metric-value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Mobile: hide non-essential table columns */
+@media (max-width: 639px) {
+  .hide-mobile { display: none !important; }
+}
+
+/* Touch-friendly tap targets */
+@media (pointer: coarse) {
+  .touch-target { min-height: 44px; }
+}
+
+/* Glass morphism card */
+.glass-card {
+  background: hsl(0 0% 100% / 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 20px -2px hsl(0 0% 0% / 0.05);
+}
+
+/* ===== PWA / Mobile Optimizations ===== */
+
+/* Safe area insets for notched devices (iPhone X+) */
+@supports (padding: env(safe-area-inset-top)) {
+  .pwa-safe-top { padding-top: env(safe-area-inset-top); }
+  .pwa-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Prevent pull-to-refresh interfering with scroll areas */
+@media (max-width: 768px) {
+  main {
+    overscroll-behavior-y: contain;
+  }
+}
+
+/* Mobile filter bar horizontal scroll */
+.mobile-filter-scroll {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.mobile-filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Mobile table containers: momentum scrolling */
+@media (max-width: 768px) {
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Prevent text selection on interactive elements in mobile */
+@media (pointer: coarse) {
+  button, [role="button"], .cursor-pointer {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+}
