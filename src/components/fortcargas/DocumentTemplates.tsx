@@ -320,7 +320,7 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
 
 interface ImagemTemplateProps {
   data: {
-    imageUrl: string;
+    imageUrls: string[];
     title: string;
     created_at?: string;
   };
@@ -328,42 +328,58 @@ interface ImagemTemplateProps {
 
 export const ImagemPDFTemplate: React.FC<ImagemTemplateProps> = ({ data }) => {
   return (
-    <div
-      id="pdf-imagem-template"
-      className="bg-white text-black p-8 font-sans border-4 border-black relative flex flex-col justify-between"
-      style={{ width: '794px', height: '1123px', boxSizing: 'border-box' }}
-    >
-      {/* Header */}
-      <div className="text-center border-b-2 border-black pb-3 mb-4">
-        <h1 className="text-2xl font-black tracking-wider text-orange-600">FORT CARGAS - AGÊNCIA</h1>
-        <p className="text-xs font-semibold">Rod. BR 153 - KM 516 - Setor Rosa dos Ventos</p>
-        <p className="text-xs font-semibold">Aparecida de Goiânia-GO - CEP: 74.989-840</p>
-        <p className="text-xs font-bold mt-1">FONE: (62) 98140-7508</p>
-      </div>
+    <div id="pdf-imagem-template-container" className="flex flex-col gap-4">
+      {data.imageUrls && data.imageUrls.length > 0 ? (
+        data.imageUrls.map((url, index) => (
+          <div
+            key={index}
+            className="pdf-image-page bg-white text-black p-8 font-sans border-4 border-black relative flex flex-col justify-between"
+            style={{ width: '794px', height: '1123px', boxSizing: 'border-box' }}
+          >
+            {/* Header */}
+            <div className="text-center border-b-2 border-black pb-3 mb-4">
+              <h1 className="text-2xl font-black tracking-wider text-orange-600">FORT CARGAS - AGÊNCIA</h1>
+              <p className="text-xs font-semibold">Rod. BR 153 - KM 516 - Setor Rosa dos Ventos</p>
+              <p className="text-xs font-semibold">Aparecida de Goiânia-GO - CEP: 74.989-840</p>
+              <p className="text-xs font-bold mt-1">FONE: (62) 98140-7508</p>
+            </div>
 
-      {/* Document Title */}
-      <div className="bg-black text-white text-center py-2 mb-4">
-        <h2 className="text-base font-black tracking-widest uppercase">{data.title || 'DOCUMENTO ANEXADO'}</h2>
-      </div>
+            {/* Document Title */}
+            <div className="bg-black text-white text-center py-2 mb-4">
+              <h2 className="text-base font-black tracking-widest uppercase">
+                {data.title || 'DOCUMENTO ANEXADO'} {data.imageUrls.length > 1 ? `(${index + 1}/${data.imageUrls.length})` : ''}
+              </h2>
+            </div>
 
-      {/* Image Container */}
-      <div className="flex-1 w-full flex items-center justify-center border-2 border-dashed border-gray-300 p-2 overflow-hidden bg-slate-50/50">
-        {data.imageUrl ? (
-          <img
-            src={data.imageUrl}
-            alt="Documento Anexo"
-            className="max-w-full max-h-[720px] object-contain border border-gray-200 shadow-sm"
-          />
-        ) : (
-          <span className="text-xs text-gray-400">Nenhuma imagem carregada</span>
-        )}
-      </div>
+            {/* Image Container */}
+            <div className="flex-1 w-full flex items-center justify-center border-2 border-dashed border-gray-300 p-2 overflow-hidden bg-slate-50/50">
+              <img
+                src={url}
+                alt={`Documento Anexo ${index + 1}`}
+                className="max-w-full max-h-[720px] object-contain border border-gray-200 shadow-sm"
+              />
+            </div>
 
-      {/* Footer */}
-      <div className="w-full flex justify-between px-4 mt-6 text-xs font-bold text-gray-400">
-        <span>Emitido em: {formatarData(data.created_at || new Date().toISOString())}</span>
-        <span>Fort Cargas Agência</span>
-      </div>
+            {/* Footer */}
+            <div className="w-full flex justify-between px-4 mt-6 text-xs font-bold text-gray-400">
+              <span>Emitido em: {formatarData(data.created_at || new Date().toISOString())}</span>
+              <span>Fort Cargas Agência</span>
+            </div>
+          </div>
+        ))
+      ) : (
+        <div
+          className="pdf-image-page bg-white text-black p-8 font-sans border-4 border-black relative flex flex-col justify-between"
+          style={{ width: '794px', height: '1123px', boxSizing: 'border-box' }}
+        >
+          <div className="text-center border-b-2 border-black pb-3 mb-4">
+            <h1 className="text-2xl font-black tracking-wider text-orange-600">FORT CARGAS - AGÊNCIA</h1>
+          </div>
+          <div className="flex-1 w-full flex items-center justify-center border-2 border-dashed border-gray-300 p-2 bg-slate-50/50">
+            <span className="text-xs text-gray-400">Nenhuma imagem carregada</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { generatePDFBlob, downloadPDFBlob, uploadPDFToSupabase } from '@/lib/pdfGenerator';
+import { generateMultipleImagesPDF, downloadPDFBlob, uploadPDFToSupabase } from '@/lib/pdfGenerator';
 import { shareDocumentOnWhatsApp } from '@/lib/whatsappShare';
 import { ImagemPDFTemplate } from './DocumentTemplates';
 import { GenerationProgressModal } from './GenerationProgressModal';
 import { toast } from 'sonner';
-import { FileImage, Image as ImageIcon, Send, ArrowLeft, Loader2, Upload, Trash2 } from 'lucide-react';
+import { FileImage, Image as ImageIcon, Send, ArrowLeft, Loader2, Upload, Trash2, Plus } from 'lucide-react';
 
 interface ImagemFormProps {
   onSuccess: () => void;
@@ -20,57 +20,60 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
   const [pdfFilename, setPdfFilename] = useState('');
   const [phone, setPhone] = useState('');
   const [documentName, setDocumentName] = useState('Comprovante');
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>('');
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
 
   // Para gerar o PDF offline em uma div oculta
   const [pdfData, setPdfData] = useState<any>(null);
 
-  // Limpa a URL de preview quando desmontado para evitar vazamentos de memória
+  // Limpa as URLs de preview quando desmontado para evitar vazamentos de memória
   useEffect(() => {
     return () => {
-      if (imagePreviewUrl) {
-        URL.revokeObjectURL(imagePreviewUrl);
-      }
+      imagePreviewUrls.forEach(url => URL.revokeObjectURL(url));
     };
-  }, [imagePreviewUrl]);
+  }, [imagePreviewUrls]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Por favor, selecione apenas arquivos de imagem (PNG, JPG, JPEG).');
-      return;
+    const newFiles: File[] = [];
+    const newPreviewUrls: string[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      if (!file.type.startsWith('image/')) {
+        toast.error(`O arquivo "${file.name}" não é uma imagem válida.`);
+        continue;
+      }
+      newFiles.push(file);
+      newPreviewUrls.push(URL.createObjectURL(file));
     }
 
-    // Revoga preview anterior se existir
-    if (imagePreviewUrl) {
-      URL.revokeObjectURL(imagePreviewUrl);
+    if (newFiles.length === 0) return;
+
+    setSelectedImages(prev => [...prev, ...newFiles]);
+    setImagePreviewUrls(prev => [...prev, ...newPreviewUrls]);
+
+    // Sugere nome baseado no primeiro arquivo original sem a extensão se estiver padrão
+    if (documentName === 'Comprovante' || !documentName) {
+      const firstFile = newFiles[0];
+      const baseName = firstFile.name.substring(0, firstFile.name.lastIndexOf('.')) || firstFile.name;
+      setDocumentName(baseName);
     }
-
-    const previewUrl = URL.createObjectURL(file);
-    setSelectedImage(file);
-    setImagePreviewUrl(previewUrl);
-
-    // Sugere nome baseado no arquivo original sem a extensão
-    const baseName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-    setDocumentName(baseName);
   };
 
-  const handleRemoveImage = () => {
-    setSelectedImage(null);
-    if (imagePreviewUrl) {
-      URL.revokeObjectURL(imagePreviewUrl);
-      setImagePreviewUrl('');
-    }
+  const handleRemoveImage = (indexToRemove: number) => {
+    URL.revokeObjectURL(imagePreviewUrls[indexToRemove]);
+    setSelectedImages(prev => prev.filter((_, i) => i !== indexToRemove));
+    setImagePreviewUrls(prev => prev.filter((_, i) => i !== indexToRemove));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedImage) {
-      toast.error('Por favor, selecione uma imagem para converter.');
+    if (selectedImages.length === 0) {
+      toast.error('Por favor, selecione pelo menos uma imagem para converter.');
       return;
     }
 
@@ -81,10 +84,9 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
     setLoading(true);
 
     try {
-      // Prepara os dados para renderização offscreen
       const docTitle = documentName.trim() || 'Documento Anexo';
       const resultData = {
-        imageUrl: imagePreviewUrl,
+        imageUrls: imagePreviewUrls,
         title: docTitle,
         created_at: new Date().toISOString()
       };
@@ -96,16 +98,16 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
         try {
           const filename = `${docTitle.toLowerCase().replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
           
-          // Gera o PDF Blob a partir do template offscreen
-          const blob = await generatePDFBlob('pdf-imagem-template');
+          // Gera o PDF a partir de múltiplos elementos com a classe pdf-image-page
+          const blob = await generateMultipleImagesPDF('pdf-image-page');
           setPdfBlob(blob);
           setPdfFilename(filename);
           
-          toast.success('PDF do anexo gerado com sucesso!');
+          toast.success('PDF gerado com sucesso!');
           setIsComplete(true);
         } catch (pdfErr) {
-          console.error('Erro ao gerar PDF da imagem:', pdfErr);
-          toast.error('Erro ao gerar o PDF da imagem.');
+          console.error('Erro ao gerar PDF das imagens:', pdfErr);
+          toast.error('Erro ao gerar o PDF.');
           setShowProgress(false);
           setPdfData(null);
         }
@@ -150,14 +152,15 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
         {/* Seletor de Arquivo */}
         <div className="space-y-3">
           <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-            Selecione a Imagem (Comprovante, Foto ou Balança)
+            Selecione as Imagens (Comprovantes, Fotos ou Balanças)
           </label>
 
-          {!selectedImage ? (
+          {selectedImages.length === 0 ? (
             <div className="border-2 border-dashed border-gray-200 hover:border-sky-400 bg-gray-50/50 hover:bg-sky-50/10 rounded-2xl p-8 text-center transition-all cursor-pointer relative group">
               <input
                 type="file"
                 accept="image/*"
+                multiple
                 onChange={handleImageChange}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
@@ -166,47 +169,58 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
                   <Upload className="h-6 w-6" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-700">Escolher Foto ou Arquivo</p>
-                  <p className="text-xs text-gray-400 mt-1">Suporta JPG, JPEG e PNG</p>
+                  <p className="text-sm font-bold text-gray-700">Escolher Fotos ou Arquivos</p>
+                  <p className="text-xs text-gray-400 mt-1">Selecione uma ou mais imagens (JPG, JPEG, PNG)</p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="border border-gray-200 rounded-2xl p-4 space-y-4 bg-slate-50">
-              <div className="flex items-center justify-between border-b border-gray-200 pb-3">
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <div className="bg-sky-50 p-2 rounded-lg text-sky-600 shrink-0">
-                    <ImageIcon className="h-5 w-5" />
+            <div className="space-y-4">
+              {/* Lista de Imagens Selecionadas */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {selectedImages.map((img, index) => (
+                  <div key={index} className="border border-gray-200 rounded-2xl p-3 bg-slate-50 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 overflow-hidden flex-1">
+                      <img
+                        src={imagePreviewUrls[index]}
+                        alt={`Preview ${index}`}
+                        className="w-12 h-12 object-cover rounded-lg border border-gray-200 shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-gray-700 truncate" title={img.name}>{img.name}</p>
+                        <p className="text-[10px] text-gray-400">{(img.size / (1024 * 1024)).toFixed(2)} MB</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="p-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-all shrink-0"
+                      title="Remover imagem"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold text-gray-700 truncate">{selectedImage.name}</p>
-                    <p className="text-[10px] text-gray-400">{(selectedImage.size / (1024 * 1024)).toFixed(2)} MB</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={handleRemoveImage}
-                  className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-all"
-                  title="Remover imagem"
-                >
-                  <Trash2 className="h-4.5 w-4.5" />
-                </button>
-              </div>
+                ))}
 
-              {/* Preview */}
-              <div className="flex justify-center max-h-[300px] overflow-hidden rounded-xl border border-gray-200/60 bg-white p-2">
-                <img
-                  src={imagePreviewUrl}
-                  alt="Preview"
-                  className="max-h-[280px] object-contain rounded-lg"
-                />
+                {/* Botão de Adicionar Mais Imagens */}
+                <div className="border border-dashed border-gray-200 hover:border-sky-400 bg-white hover:bg-sky-50/10 rounded-2xl p-3 flex items-center justify-center gap-2 transition-all cursor-pointer relative min-h-[58px] group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <Plus className="h-4 w-4 text-sky-600 group-hover:scale-110 transition-transform" />
+                  <span className="text-xs font-bold text-sky-600">Adicionar Mais Fotos</span>
+                </div>
               </div>
             </div>
           )}
         </div>
 
         {/* Inputs de Configuração */}
-        {selectedImage && (
+        {selectedImages.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
@@ -239,7 +253,7 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
         <div className="flex gap-4 pt-4 border-t border-gray-100">
           <button
             type="submit"
-            disabled={loading || !selectedImage}
+            disabled={loading || selectedImages.length === 0}
             className="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-sky-200 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none"
           >
             {loading ? (
@@ -250,7 +264,7 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
             ) : (
               <>
                 <FileImage className="h-5 w-5" />
-                Converter & Gerar PDF
+                Converter & Gerar PDF ({selectedImages.length} {selectedImages.length === 1 ? 'imagem' : 'imagens'})
               </>
             )}
           </button>
@@ -278,7 +292,7 @@ export const ImagemParaPdfForm: React.FC<ImagemFormProps> = ({ onSuccess, onCanc
       {/* Modal de Progresso de Geração */}
       <GenerationProgressModal 
         isOpen={showProgress} 
-        documentType="pedido" // Força um tipo para reaproveitar visual, ou extendemos
+        documentType="pedido"
         isComplete={isComplete}
         onClose={() => {
           setShowProgress(false);

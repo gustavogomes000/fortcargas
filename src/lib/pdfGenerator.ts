@@ -128,3 +128,46 @@ export function downloadPDFBlob(blob: Blob, filename: string): void {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+/**
+ * Converte múltiplos elementos HTML (com a mesma classe) em um PDF multipáginas.
+ */
+export async function generateMultipleImagesPDF(className: string): Promise<Blob> {
+  const elements = document.getElementsByClassName(className);
+  if (elements.length === 0) {
+    throw new Error(`Nenhum elemento com a classe ${className} encontrado.`);
+  }
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const imgWidth = 210;
+  const pageHeight = 297;
+
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i] as HTMLElement;
+    
+    const canvas = await html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      windowWidth: element.scrollWidth,
+      windowHeight: element.scrollHeight
+    });
+
+    const imgData = canvas.toDataURL('image/png');
+
+    if (i > 0) {
+      pdf.addPage();
+    }
+
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, pageHeight);
+  }
+
+  return pdf.output('blob');
+}
+
