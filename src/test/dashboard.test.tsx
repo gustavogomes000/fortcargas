@@ -111,4 +111,26 @@ describe("FortCargasDashboard — Teste de Integração UX", () => {
     // Deve voltar para a tela principal
     expect(screen.getByText("Pedido de Carregamento")).toBeDefined();
   });
+
+  it("deve abrir o formulário de Imagem para PDF ao clicar no card correspondente", () => {
+    const { container } = render(<FortCargasDashboard />);
+
+    // Clica no card de Imagem para PDF
+    const cardImagem = screen.getByText("Imagem para PDF").closest(".group");
+    expect(cardImagem).not.toBeNull();
+    
+    if (cardImagem) {
+      fireEvent.click(cardImagem);
+    }
+
+    // Verifica se o formulário correspondente foi montado na tela
+    expect(screen.getByText("Conversor de Imagem para PDF")).toBeDefined();
+    
+    // Clica no botão de voltar
+    const btnVoltar = screen.getByText("Voltar");
+    fireEvent.click(btnVoltar);
+
+    // Deve voltar para a tela principal
+    expect(screen.getByText("Imagem para PDF")).toBeDefined();
+  });
 });
