@@ -37,13 +37,12 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
   const fetchData = async () => {
     setLoading(true);
     try {
-      if (activeTab === 'pedidos') {
-        const data = await documentService.getPedidos();
-        setPedidos(data || []);
-      } else {
-        const data = await documentService.getRecibos();
-        setRecibos(data || []);
-      }
+      const [pedidosData, recibosData] = await Promise.all([
+        documentService.getPedidos(),
+        documentService.getRecibos()
+      ]);
+      setPedidos(pedidosData || []);
+      setRecibos(recibosData || []);
     } catch (error: any) {
       console.error('Erro ao buscar dados:', error);
       toast.error('Erro ao carregar histórico: ' + error.message);
@@ -54,7 +53,7 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
 
   useEffect(() => {
     fetchData();
-  }, [activeTab, refreshTrigger]);
+  }, [refreshTrigger]);
 
   // Sincronização em Tempo Real (Supabase Realtime)
   useEffect(() => {
@@ -66,7 +65,18 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
           {
             event: '*', // Escuta INSERT, UPDATE, DELETE
             schema: 'public',
-            table: activeTab === 'pedidos' ? 'pedidos_carregamento' : 'recibos'
+            table: 'pedidos_carregamento'
+          },
+          () => {
+            fetchData();
+          }
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'recibos'
           },
           () => {
             fetchData();
@@ -80,7 +90,7 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
     } catch (err) {
       console.warn('Erro ao configurar canal em tempo real do Supabase:', err);
     }
-  }, [activeTab]);
+  }, []);
 
   // Sincronização ao focar a aba/janela do navegador (ex: alternar celular -> computador)
   useEffect(() => {
@@ -91,7 +101,7 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [activeTab]);
+  }, []);
 
   // Exclusão de documentos do serviço
   const handleDelete = async (id: string, table: 'pedidos_carregamento' | 'recibos') => {
