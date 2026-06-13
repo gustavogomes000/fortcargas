@@ -89,4 +89,26 @@ describe("FortCargasDashboard — Teste de Integração UX", () => {
     // Deve voltar para a tela principal
     expect(screen.getByText("Recibo de Pagamento")).toBeDefined();
   });
+
+  it("deve abrir o Histórico Geral ao clicar no card de atalho na Home", () => {
+    render(<FortCargasDashboard />);
+
+    // Clica no card de Histórico Geral
+    const cardHistorico = screen.getByText("Histórico Geral de Documentos").closest(".group");
+    expect(cardHistorico).not.toBeNull();
+    
+    if (cardHistorico) {
+      fireEvent.click(cardHistorico);
+    }
+
+    // Verifica se o painel geral do histórico foi montado na tela
+    expect(screen.getByText("Histórico Geral de Documentos")).toBeDefined();
+
+    // Clica no botão de voltar (header back button)
+    const btnVoltar = screen.getByTitle("Voltar ao início");
+    fireEvent.click(btnVoltar);
+
+    // Deve voltar para a tela principal
+    expect(screen.getByText("Pedido de Carregamento")).toBeDefined();
+  });
 });

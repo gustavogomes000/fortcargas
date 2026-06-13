@@ -9,7 +9,7 @@ import {
   Settings, HelpCircle, Truck, ExternalLink 
 } from 'lucide-react';
 
-type Mode = 'home' | 'pedido' | 'recibo';
+type Mode = 'home' | 'pedido' | 'recibo' | 'historico';
 type SubView = 'form' | 'history';
 
 export default function FortCargasDashboard() {
@@ -63,11 +63,13 @@ export default function FortCargasDashboard() {
   };
 
   const handleEditPedido = (item: any) => {
+    setMode('pedido');
     setEditingItem(item);
     setSubView('form');
   };
 
   const handleEditRecibo = (item: any) => {
+    setMode('recibo');
     setEditingItem(item);
     setSubView('form');
   };
@@ -198,6 +200,31 @@ export default function FortCargasDashboard() {
               </div>
 
             </div>
+
+            {/* Atalho do Histórico Geral */}
+            <div className="max-w-4xl mx-auto pt-2">
+              <div 
+                onClick={() => setMode('historico')}
+                className="group bg-white hover:bg-gradient-to-br hover:from-white hover:to-sky-50/30 border border-slate-100 hover:border-sky-500/50 rounded-3xl p-6 md:p-7 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex items-center justify-between select-none animate-fade-in"
+              >
+                <div className="flex items-center gap-4 text-left">
+                  <div className="bg-sky-50 border border-sky-100 text-sky-600 p-4 rounded-2xl group-hover:bg-sky-500 group-hover:text-white transition-all duration-300 shadow-sm shrink-0">
+                    <History className="h-6 w-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-slate-800 group-hover:text-sky-600 transition-colors">
+                      Histórico Geral de Documentos
+                    </h3>
+                    <p className="text-sm text-slate-500 leading-relaxed">
+                      Consulte, re-edite, baixe ou compartilhe todos os pedidos e recibos gerados anteriormente.
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-sky-50 border border-sky-100 p-2 rounded-xl group-hover:bg-sky-500 group-hover:text-white group-hover:translate-x-1 transition-all duration-300 shrink-0">
+                  <ArrowLeft className="h-4.5 w-4.5 rotate-180" />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -290,6 +317,31 @@ export default function FortCargasDashboard() {
                 refreshTrigger={refreshTrigger}
               />
             )}
+          </div>
+        )}
+
+        {/* VIEW 4: HISTÓRICO GERAL */}
+        {mode === 'historico' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl shadow-xl border border-sky-100 p-5 md:p-8 max-w-4xl mx-auto">
+              <div className="flex items-center gap-3 border-b border-gray-100 pb-4 mb-6">
+                <div className="bg-sky-50 p-2.5 rounded-xl text-sky-600">
+                  <History className="h-6 w-6" />
+                </div>
+                <div className="text-left">
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Histórico Geral de Documentos
+                  </h2>
+                  <p className="text-xs text-gray-500">Consulte ou gerencie todos os registros emitidos no sistema</p>
+                </div>
+              </div>
+              
+              <DocumentHistory 
+                onEditPedido={handleEditPedido}
+                onEditRecibo={handleEditRecibo}
+                refreshTrigger={refreshTrigger}
+              />
+            </div>
           </div>
         )}
 
