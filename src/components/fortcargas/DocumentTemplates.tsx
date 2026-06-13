@@ -50,7 +50,7 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
     >
       {/* Header */}
       <div className="text-center border-b-2 border-black pb-4 mb-4">
-        <h1 className="text-2xl font-black tracking-wider text-black">FORT CARGAS - AGÊNCIA</h1>
+        <h1 className="text-2xl font-black tracking-wider text-orange-600">FORT CARGAS - AGÊNCIA</h1>
         <p className="text-xs font-semibold">Rod. BR 153 - KM 516 - Setor Rosa dos Ventos</p>
         <p className="text-xs font-semibold">Aparecida de Goiânia-GO - CEP: 74.989-840</p>
         <p className="text-xs font-bold mt-1">FONE: (62) 98140-7508</p>
@@ -183,7 +183,7 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
     >
       {/* Header */}
       <div className="text-center border-b-2 border-black pb-3 mb-4">
-        <h1 className="text-2xl font-black tracking-widest text-black">FORTCARGAS-AGENCIA</h1>
+        <h1 className="text-2xl font-black tracking-widest text-orange-600">FORTCARGAS-AGENCIA</h1>
         <p className="text-xs font-semibold">RODOVIA BR-153 - KM 516 - ROSA DOS VENTOS</p>
         <p className="text-xs font-semibold">APARECIDA DE GOIANIA/GO</p>
         <p className="text-xs font-bold mt-0.5">FONE: (62) 98140-7508</p>
