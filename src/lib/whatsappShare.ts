@@ -39,7 +39,7 @@ export function getWhatsAppShareLink(phone: string, message: string): string {
 /**
  * Abre o WhatsApp compartilhando o documento gerado.
  */
-export function shareDocumentOnWhatsApp(phone: string, documentType: 'pedido' | 'recibo', docData: any, pdfUrl?: string) {
+export function shareDocumentOnWhatsApp(phone: string, documentType: 'pedido' | 'recibo' | 'imagem', docData: any, pdfUrl?: string) {
   let message = '';
   const dateStr = new Date(docData.created_at || Date.now()).toLocaleDateString('pt-BR');
 
@@ -58,7 +58,7 @@ export function shareDocumentOnWhatsApp(phone: string, documentType: 'pedido' | 
     } else {
       message += `\n_Acesse o histórico no sistema para baixar o PDF correspondente._`;
     }
-  } else {
+  } else if (documentType === 'recibo') {
     // Format value
     const valorFmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(docData.valor));
     message = `*FORT CARGAS - RECIBO DE PAGAMENTO*\n` +
@@ -68,6 +68,17 @@ export function shareDocumentOnWhatsApp(phone: string, documentType: 'pedido' | 
               `*Referente a:* ${docData.correspondente_a || 'Transporte'}\n` +
               `*Motorista:* ${docData.motorista_nome}\n` +
               `*Favorecido:* ${docData.deposito_favorecido || 'Rogerio Bento de Oliveira'}\n` +
+              `*Data:* ${dateStr}\n`;
+
+    if (pdfUrl) {
+      message += `\n*Baixar PDF:* ${pdfUrl}`;
+    } else {
+      message += `\n_Acesse o histórico no sistema para baixar o PDF correspondente._`;
+    }
+  } else if (documentType === 'imagem') {
+    message = `*FORT CARGAS - DOCUMENTO ANEXO*\n` +
+              `----------------------------------------\n` +
+              `*Título:* ${docData.title || 'Documento Anexo'}\n` +
               `*Data:* ${dateStr}\n`;
 
     if (pdfUrl) {

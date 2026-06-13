@@ -4,12 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { PedidoCarregamentoForm } from '@/components/fortcargas/PedidoCarregamentoForm';
 import { ReciboForm } from '@/components/fortcargas/ReciboForm';
 import { DocumentHistory } from '@/components/fortcargas/DocumentHistory';
+import { ImagemParaPdfForm } from '@/components/fortcargas/ImagemParaPdfForm';
 import { 
   FileText, FileSignature, ArrowLeft, History, PlusCircle, 
-  Settings, HelpCircle, Truck, ExternalLink 
+  Settings, HelpCircle, Truck, ExternalLink, FileImage
 } from 'lucide-react';
 
-type Mode = 'home' | 'pedido' | 'recibo' | 'historico';
+type Mode = 'home' | 'pedido' | 'recibo' | 'historico' | 'imagem';
 type SubView = 'form' | 'history';
 
 export default function FortCargasDashboard() {
@@ -145,7 +146,7 @@ export default function FortCargasDashboard() {
             </div>
 
             {/* Grid de Seleção */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               
               {/* Card: Pedido de Carregamento */}
               <div 
@@ -194,6 +195,32 @@ export default function FortCargasDashboard() {
                 <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-sky-600">
                   <span>Acessar Emissor</span>
                   <div className="bg-sky-50 border border-sky-100 p-1.5 rounded-full group-hover:bg-sky-500 group-hover:text-white group-hover:translate-x-1 transition-all duration-300">
+                    <ArrowLeft className="h-4 w-4 rotate-180" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Card: Imagem para PDF */}
+              <div 
+                onClick={() => { setMode('imagem'); setSubView('form'); }}
+                className="group bg-white hover:bg-gradient-to-br hover:from-white hover:to-orange-50/20 border border-slate-100 hover:border-orange-500/40 rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between select-none"
+              >
+                <div className="space-y-5">
+                  <div className="bg-orange-50 border border-orange-100 text-orange-600 p-4 rounded-2xl w-fit group-hover:bg-orange-500 group-hover:text-white transition-all duration-300 shadow-sm">
+                    <FileImage className="h-8 w-8" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-slate-800 group-hover:text-orange-600 transition-colors">
+                      Imagem para PDF
+                    </h3>
+                    <p className="text-sm text-slate-500 leading-relaxed">
+                      Selecione imagens ou tire fotos de comprovantes da galeria para convertê-los em arquivos PDF prontos para compartilhar.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-orange-600">
+                  <span>Acessar Emissor</span>
+                  <div className="bg-orange-50 border border-orange-100 p-1.5 rounded-full group-hover:bg-orange-500 group-hover:text-white group-hover:translate-x-1 transition-all duration-300">
                     <ArrowLeft className="h-4 w-4 rotate-180" />
                   </div>
                 </div>
@@ -342,6 +369,16 @@ export default function FortCargasDashboard() {
                 refreshTrigger={refreshTrigger}
               />
             </div>
+          </div>
+        )}
+
+        {/* VIEW 5: IMAGEM PARA PDF */}
+        {mode === 'imagem' && (
+          <div className="space-y-6 animate-fade-in">
+            <ImagemParaPdfForm 
+              onSuccess={resetToHome}
+              onCancel={resetToHome}
+            />
           </div>
         )}
 
