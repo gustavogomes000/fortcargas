@@ -192,9 +192,71 @@ export const documentService = {
   },
 
   /**
+   * Sincroniza dados do LocalStorage com o Supabase quando online
+   */
+  async syncOfflineData(): Promise<void> {
+    try {
+      // 1. Sincroniza Pedidos
+      const localPedidos = this.getLocalPedidos();
+      const offlinePedidos = localPedidos.filter(p => p.is_offline || p.id?.startsWith('local_'));
+      
+      if (offlinePedidos.length > 0) {
+        console.log(`Sincronizando ${offlinePedidos.length} pedidos offline...`);
+        for (const pedido of offlinePedidos) {
+          const payload = { ...pedido };
+          delete payload.is_offline;
+          const oldId = payload.id;
+          delete payload.id; // Deixa o banco gerar o UUID real
+
+          const { error } = await supabase
+            .from('pedidos_carregamento')
+            .insert([payload]);
+
+          if (!error) {
+            // Remove do local storage após sincronizar com sucesso
+            const currentLocal = this.getLocalPedidos();
+            const filtered = currentLocal.filter(p => p.id !== oldId);
+            localStorage.setItem(LOCAL_PEDIDOS_KEY, JSON.stringify(filtered));
+          }
+        }
+      }
+
+      // 2. Sincroniza Recibos
+      const localRecibos = this.getLocalRecibos();
+      const offlineRecibos = localRecibos.filter(r => r.is_offline || r.id?.startsWith('local_'));
+
+      if (offlineRecibos.length > 0) {
+        console.log(`Sincronizando ${offlineRecibos.length} recibos offline...`);
+        for (const recibo of offlineRecibos) {
+          const payload = { ...recibo };
+          delete payload.is_offline;
+          const oldId = payload.id;
+          delete payload.id;
+
+          const { error } = await supabase
+            .from('recibos')
+            .insert([payload]);
+
+          if (!error) {
+            const currentLocal = this.getLocalRecibos();
+            const filtered = currentLocal.filter(r => r.id !== oldId);
+            localStorage.setItem(LOCAL_RECIBOS_KEY, JSON.stringify(filtered));
+          }
+        }
+      }
+    } catch (err) {
+      console.warn("Erro ao executar sincronização em background:", err);
+    }
+  },
+
+  /**
    * Busca lista de Pedidos combinada (Supabase + LocalStorage)
    */
   async getPedidos(): Promise<PedidoData[]> {
+    try {
+      await this.syncOfflineData();
+    } catch (e) {}
+
     const localItems = this.getLocalPedidos();
     try {
       const { data: dbItems, error } = await supabase
@@ -218,6 +280,10 @@ export const documentService = {
    * Busca lista de Recibos combinada (Supabase + LocalStorage)
    */
   async getRecibos(): Promise<ReciboData[]> {
+    try {
+      await this.syncOfflineData();
+    } catch (e) {}
+
     const localItems = this.getLocalRecibos();
     try {
       const { data: dbItems, error } = await supabase
