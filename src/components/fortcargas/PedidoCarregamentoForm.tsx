@@ -67,10 +67,6 @@ export const PedidoCarregamentoForm: React.FC<PedidoFormProps> = ({ editData, on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.cliente || !formData.destinatario || !formData.motorista_nome) {
-      toast.error('Preencha os campos obrigatórios: Cliente, Destinatário e Motorista.');
-      return;
-    }
 
     // Abre a animação premium de geração de PDF
     setShowProgress(true);
@@ -158,7 +154,7 @@ export const PedidoCarregamentoForm: React.FC<PedidoFormProps> = ({ editData, on
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Cliente *
+                Cliente
               </label>
               <input
                 type="text"
@@ -167,12 +163,11 @@ export const PedidoCarregamentoForm: React.FC<PedidoFormProps> = ({ editData, on
                 onChange={handleChange}
                 placeholder="Ex: CONSERVAS OLE - SR JOSE (64) 3413-8900"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
-                required
               />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Destinatário *
+                Destinatário
               </label>
               <input
                 type="text"
@@ -181,7 +176,6 @@ export const PedidoCarregamentoForm: React.FC<PedidoFormProps> = ({ editData, on
                 onChange={handleChange}
                 placeholder="Nome da empresa destinatária"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
-                required
               />
             </div>
           </div>
@@ -272,7 +266,7 @@ export const PedidoCarregamentoForm: React.FC<PedidoFormProps> = ({ editData, on
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Nome do Motorista *
+                Nome do Motorista
               </label>
               <input
                 type="text"
@@ -281,7 +275,6 @@ export const PedidoCarregamentoForm: React.FC<PedidoFormProps> = ({ editData, on
                 onChange={handleChange}
                 placeholder="Ex: Paulo Henrique Cardoso da Silva"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
-                required
               />
             </div>
             <div>

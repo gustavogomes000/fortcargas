@@ -89,10 +89,6 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.valor || !formData.recebi_de || !formData.motorista_nome) {
-      toast.error('Preencha os campos obrigatórios: Valor, Recebi de e Motorista.');
-      return;
-    }
     // Abre a animação premium de geração de PDF
     setShowProgress(true);
     setIsComplete(false);
@@ -100,7 +96,7 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
     setLoading(true);
 
     try {
-      const numValor = parseFloat(formData.valor);
+      const numValor = parseFloat(formData.valor) || 0;
       const numAdiantamento = parseFloat(formData.adiantamento) || 0;
       const numSaldo = parseFloat(formData.saldo_receber) || 0;
 
@@ -191,7 +187,7 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Valor Recibo (R$) *
+                Valor Recibo (R$)
               </label>
               <input
                 type="number"
@@ -201,12 +197,11 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
                 onChange={handleChange}
                 placeholder="Ex: 9870.00"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
-                required
               />
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Recebi(emos) de *
+                Recebi(emos) de
               </label>
               <input
                 type="text"
@@ -215,7 +210,6 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
                 onChange={handleChange}
                 placeholder="Ex: COMAZI TRATORES E MAQUINAS LTDA"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
-                required
               />
             </div>
           </div>
@@ -333,7 +327,7 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
-                Motorista *
+                Motorista
               </label>
               <input
                 type="text"
@@ -342,7 +336,6 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
                 onChange={handleChange}
                 placeholder="Nome completo do motorista"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
-                required
               />
             </div>
             <div>
