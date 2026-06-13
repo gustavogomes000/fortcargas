@@ -1,11 +1,11 @@
 {
-  "name": "EleiçõesGO — Inteligência Eleitoral",
-  "short_name": "EleiçõesGO",
-  "description": "Painel de inteligência eleitoral de Goiás — Dados, candidatos, zonas e escolas eleitorais",
+  "name": "Fort Cargas — Emissor",
+  "short_name": "Fort Cargas",
+  "description": "Gerador de Pedidos de Carregamento e Recibos da Fort Cargas",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#EC4899",
+  "theme_color": "#0284c7",
   "orientation": "any",
   "icons": [
     {
