@@ -16,6 +16,15 @@ const formatarMoeda = (valor?: number | string) => {
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(num);
 };
 
+// Retorna o tamanho de fonte ideal com base no tamanho do texto para evitar quebras excessivas
+const obterClasseFonteDinamica = (texto?: string, classePadrao: string = 'text-base', limiteSm: number = 60, limiteXs: number = 120) => {
+  if (!texto) return classePadrao;
+  const t = String(texto).trim();
+  if (t.length > limiteXs) return 'text-xs';
+  if (t.length > limiteSm) return 'text-sm';
+  return classePadrao;
+};
+
 export const DEFAULT_TERMOS = `• NA DESISTENCIA DA CARGA PELO MOTORISTA NÃO DEVOLVEMOS COMISSAO.
 • DOCUMENTAÇÃO DO MOTORISTA E DO VEICULO EM ORDEM.
 • ASSOALHO DO VEICULO EM PERFEITAS CONDIÇÕES.
@@ -65,20 +74,20 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
       <div className="border-2 border-black p-3 mb-4 space-y-2 text-sm">
         <div className="flex items-start">
           <span className="font-extrabold whitespace-nowrap pt-[2px]">CLIENTE:</span>
-          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+          <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.cliente, 'text-base', 45, 90)}`}>
             {data.cliente}
           </span>
         </div>
         <div className="flex gap-4 items-start">
           <div className="flex-1 flex items-start">
             <span className="font-extrabold whitespace-nowrap pt-[2px]">ENDEREÇO:</span>
-            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+            <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.endereco, 'text-base', 50, 100)}`}>
               {data.endereco || ''}
             </span>
           </div>
           <div className="w-[30%] flex items-start">
             <span className="font-extrabold whitespace-nowrap pt-[2px]">CIDADE:</span>
-            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+            <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.cidade, 'text-base', 25, 50)}`}>
               {data.cidade || ''}
             </span>
           </div>
@@ -86,13 +95,13 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
         <div className="border-t border-black my-2"></div>
         <div className="flex items-start">
           <span className="font-extrabold whitespace-nowrap pt-[2px]">DESTINATÁRIO:</span>
-          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+          <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.destinatario, 'text-base', 45, 90)}`}>
             {data.destinatario}
           </span>
         </div>
         <div className="flex items-start">
           <span className="font-extrabold whitespace-nowrap pt-[2px]">CIDADE:</span>
-          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+          <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.cidade_destinatario, 'text-base', 45, 90)}`}>
             {data.cidade_destinatario || ''}
           </span>
         </div>
@@ -103,7 +112,7 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
         <div className="bg-gray-200 border-b-2 border-black px-3 py-1 text-xs font-black uppercase text-center">
           DESCRIÇÃO DA CARGA A SER COLETADA
         </div>
-        <div className="p-3 font-mono text-sm uppercase min-h-[120px] whitespace-pre-wrap leading-relaxed">
+        <div className={`p-3 font-mono uppercase min-h-[120px] whitespace-pre-wrap leading-relaxed ${obterClasseFonteDinamica(data.descricao_carga, 'text-sm', 200, 400)}`}>
           {data.descricao_carga || '\n\n'}
         </div>
       </div>
@@ -113,7 +122,7 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
         <div className="bg-gray-200 border-b-2 border-black px-3 py-1 text-xs font-black uppercase text-center">
           SALDO DE FRETE MEDIANTE APRESENTAÇÃO DOS COMPROV. ENTREGA ORIGINAIS
         </div>
-        <div className="p-3 font-mono text-sm uppercase min-h-[80px] whitespace-pre-wrap leading-relaxed">
+        <div className={`p-3 font-mono uppercase min-h-[80px] whitespace-pre-wrap leading-relaxed ${obterClasseFonteDinamica(data.saldo_frete, 'text-sm', 150, 300)}`}>
           {data.saldo_frete || '\n'}
         </div>
       </div>
@@ -123,20 +132,20 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
         <div className="flex-1 space-y-2">
           <div className="flex items-start">
             <span className="font-extrabold whitespace-nowrap pt-[2px]">VEICULO PLACA:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+            <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.veiculo_placa, 'text-base', 30, 60)}`}>
               {data.veiculo_placa || ''}
             </span>
           </div>
           <div className="flex items-start">
             <span className="font-extrabold whitespace-nowrap pt-[2px]">CARRETA PLACA:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+            <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.carreta_placa, 'text-base', 30, 60)}`}>
               {data.carreta_placa || ''}
             </span>
           </div>
         </div>
         <div className="w-[50%] flex items-start border-l-2 border-black pl-4">
           <span className="font-extrabold whitespace-nowrap pt-[2px]">MOTORISTA:</span>
-          <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+          <span className={`font-mono ml-2 uppercase underline underline-offset-4 decoration-dotted flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.motorista_nome, 'text-base', 40, 80)}`}>
             {data.motorista_nome}
           </span>
         </div>
@@ -218,32 +227,32 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
       <div className="border-2 border-black p-4 space-y-4 text-sm leading-relaxed mb-4">
         <div className="flex items-start">
           <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">Recebi(emos) de:</span>
-          <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+          <span className={`font-mono uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.recebi_de, 'text-base', 45, 90)}`}>
             {data.recebi_de}
           </span>
         </div>
         <div className="flex items-start">
           <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">a quantia de:</span>
-          <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+          <span className={`font-mono uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.quantia_de, 'text-base', 55, 110)}`}>
             {data.quantia_de}
           </span>
         </div>
         <div className="flex items-start">
           <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">Correspondente a:</span>
-          <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+          <span className={`font-mono underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.correspondente_a, 'text-base', 65, 130)}`}>
             {data.correspondente_a || ''}
           </span>
         </div>
         <div className="flex flex-row gap-4 items-start">
           <div className="flex-1 flex items-start">
             <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">do Transportes de:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+            <span className={`font-mono uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.transporte_de, 'text-base', 35, 70)}`}>
               {data.transporte_de || ''}
             </span>
           </div>
           <div className="w-[45%] flex items-start">
             <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">de ORIGEM:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+            <span className={`font-mono uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.origem, 'text-base', 30, 60)}`}>
               {data.origem || ''}
             </span>
           </div>
@@ -251,13 +260,13 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
         <div className="flex flex-row gap-4 items-start">
           <div className="flex-1 flex items-start">
             <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">DESTINO:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+            <span className={`font-mono uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.destino, 'text-base', 30, 60)}`}>
               {data.destino || ''}
             </span>
           </div>
           <div className="w-[45%] flex items-start">
             <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">ADIANTAMENTO:</span>
-            <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight text-center">
+            <span className="font-mono text-base underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight text-center">
               {data.adiantamento ? formatarMoeda(data.adiantamento) : ''}
             </span>
           </div>
@@ -266,7 +275,7 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
         <div className="flex justify-between items-center">
           <span className="font-black text-orange-600 text-sm uppercase">
             SALDO A RECEBER:{' '}
-            <span className="font-mono text-base underline ml-2 text-orange-600 decoration-dotted">
+            <span className="font-mono text-base underline underline-offset-4 decoration-dotted ml-2 text-orange-600">
               {formatarMoeda(data.saldo_receber)}
             </span>
           </span>
@@ -278,14 +287,14 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
         <div className="flex flex-row gap-4 items-start">
           <div className="flex-1 flex items-start">
             <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">MOTORISTA:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+            <span className={`font-mono uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.motorista_nome, 'text-base', 40, 80)}`}>
               {data.motorista_nome}
             </span>
           </div>
           {data.motorista_cpf && (
             <div className="w-[40%] flex items-start">
               <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">CPF:</span>
-              <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+              <span className={`font-mono underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.motorista_cpf, 'text-base', 40, 80)}`}>
                 {data.motorista_cpf}
               </span>
             </div>
@@ -297,7 +306,7 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
             {data.motorista_conta && (
               <div className="flex-1 flex items-start">
                 <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">CONTA:</span>
-                <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+                <span className="font-mono text-base underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight">
                   {data.motorista_conta}
                   {data.motorista_conta_digito ? `-${data.motorista_conta_digito}` : ''}
                 </span>
@@ -306,7 +315,7 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
             {data.motorista_pix && (
               <div className={`${data.motorista_conta ? 'w-[40%]' : 'flex-1'} flex items-start`}>
                 <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">Pix:</span>
-                <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+                <span className={`font-mono underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.motorista_pix, 'text-base', 40, 80)}`}>
                   {data.motorista_pix}
                 </span>
               </div>
@@ -317,13 +326,13 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
         <div className="flex flex-row gap-4 items-start">
           <div className="flex-1 flex items-start">
             <span className="font-extrabold uppercase text-orange-600 whitespace-nowrap pt-[2px]">CAVALO PLACA:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight text-orange-600">
+            <span className={`font-mono text-base uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight text-orange-600 ${obterClasseFonteDinamica(data.cavalo_placa, 'text-base', 30, 60)}`}>
               {data.cavalo_placa || ''}
             </span>
           </div>
           <div className="w-[45%] flex items-start">
             <span className="font-extrabold uppercase text-orange-600 whitespace-nowrap pt-[2px]">CARRETA PLACA:</span>
-            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight text-orange-600">
+            <span className={`font-mono text-base uppercase underline underline-offset-4 decoration-dotted ml-2 flex-1 break-words leading-tight text-orange-600 ${obterClasseFonteDinamica(data.carreta_placa, 'text-base', 30, 60)}`}>
               {data.carreta_placa || ''}
             </span>
           </div>
@@ -345,13 +354,13 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
           </div>
           <div className="flex items-start">
             <span className="font-extrabold text-xs text-orange-600 whitespace-nowrap pt-[1px]">PIX CHAVE:</span>
-            <span className="font-mono text-sm ml-2 font-semibold text-orange-600 flex-1 break-all leading-tight">
+            <span className={`font-mono text-sm ml-2 font-semibold text-orange-600 flex-1 break-all leading-tight ${obterClasseFonteDinamica(data.deposito_chave_pix, 'text-sm', 45, 90)}`}>
               {data.deposito_chave_pix || ''}
             </span>
           </div>
           <div className="flex items-start">
             <span className="font-extrabold text-xs text-orange-600 whitespace-nowrap pt-[1px]">FAVORECIDO:</span>
-            <span className="font-mono text-sm ml-2 font-semibold text-orange-600 flex-1 break-words leading-tight">
+            <span className={`font-mono text-sm ml-2 font-semibold text-orange-600 flex-1 break-words leading-tight ${obterClasseFonteDinamica(data.deposito_favorecido, 'text-sm', 45, 90)}`}>
               {data.deposito_favorecido || ''}
             </span>
           </div>
