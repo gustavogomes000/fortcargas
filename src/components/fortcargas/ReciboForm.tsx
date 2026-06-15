@@ -48,6 +48,19 @@ const formatToBrazilianInput = (value: number | string | undefined | null): stri
   }).format(num);
 };
 
+const formatCurrencyBRL = (value: string): string => {
+  if (!value) return '';
+  const cleanValue = value.replace(/\D/g, '');
+  if (!cleanValue || cleanValue === '0' || cleanValue === '00') return '';
+  const cents = parseInt(cleanValue, 10);
+  if (isNaN(cents)) return '';
+  const floatValue = cents / 100;
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(floatValue);
+};
+
 export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onCancel }) => {
   const [loading, setLoading] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
@@ -116,7 +129,11 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'valor' || name === 'adiantamento' || name === 'saldo_receber') {
+      setFormData((prev) => ({ ...prev, [name]: formatCurrencyBRL(value) }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
