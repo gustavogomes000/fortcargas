@@ -572,6 +572,45 @@ def chat_eleicoes(req: ChatRequest):
     """
     return processar_chat(req)
 
+
+# ---------------------------------------------------------------------------
+# PING / KEEP-ALIVE SUPABASE (Despertador)
+# ---------------------------------------------------------------------------
+@app.get("/api/keep-alive", tags=["Keep Alive"])
+def keep_alive():
+    """
+    Executa consultas leves em ambos os bancos de dados Supabase (o padrão do MVP
+    e o específico do Fort Cargas) para mantê-los ativos e evitar a hibernação automática.
+    """
+    results = {}
+    from supabase import create_client
+    
+    # 1. Ping no Supabase do MVP (Estatísticas Eleitorais)
+    mvp_url = os.getenv("SUPABASE_URL")
+    mvp_key = os.getenv("SUPABASE_KEY")
+    if mvp_url and mvp_key:
+        try:
+            client_mvp = create_client(mvp_url, mvp_key)
+            client_mvp.table("conhecimento_ia").select("id").limit(1).execute()
+            results["supabase_mvp"] = "success"
+        except Exception as e:
+            results["supabase_mvp"] = f"error: {str(e)}"
+    else:
+        results["supabase_mvp"] = "not_configured"
+
+    # 2. Ping no Supabase do Fort Cargas
+    fc_url = "https://udrwmtaqeamsibmsnbjr.supabase.co"
+    fc_key = "sb_publishable_g-pWN0mbtbYl3Hgjf8DfFQ_5UIqBWyd"
+    try:
+        client_fc = create_client(fc_url, fc_key)
+        client_fc.table("pedidos_carregamento").select("id").limit(1).execute()
+        results["supabase_fort_cargas"] = "success"
+    except Exception as e:
+        results["supabase_fort_cargas"] = f"error: {str(e)}"
+
+    return {"status": "completed", "results": results}
+
+
 # ---------------------------------------------------------------------------
 # Handler ASGI para Vercel Serverless
 # ---------------------------------------------------------------------------

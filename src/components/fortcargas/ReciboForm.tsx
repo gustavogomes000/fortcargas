@@ -16,6 +16,38 @@ interface ReciboFormProps {
   onCancel?: () => void;
 }
 
+const parseBrazilianValue = (valStr: string): number => {
+  if (!valStr) return 0;
+  let cleanStr = valStr.trim().replace(/R\$\s?/gi, '');
+  const lastComma = cleanStr.lastIndexOf(',');
+  const lastDot = cleanStr.lastIndexOf('.');
+
+  if (lastComma > lastDot) {
+    const beforeComma = cleanStr.slice(0, lastComma).replace(/[\.]/g, '').replace(/,/g, '');
+    const afterComma = cleanStr.slice(lastComma + 1);
+    cleanStr = `${beforeComma}.${afterComma}`;
+  } else if (lastDot > lastComma) {
+    cleanStr = cleanStr.replace(/,/g, '');
+  } else {
+    if (lastComma !== -1) {
+      cleanStr = cleanStr.replace(',', '.');
+    }
+  }
+  const parsed = parseFloat(cleanStr);
+  return isNaN(parsed) ? 0 : parsed;
+};
+
+const formatToBrazilianInput = (value: number | string | undefined | null): string => {
+  if (value === undefined || value === null || value === '') return '';
+  const num = Number(value);
+  if (isNaN(num)) return String(value);
+  if (num === 0) return '';
+  return new Intl.NumberFormat('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(num);
+};
+
 export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onCancel }) => {
   const [loading, setLoading] = useState(false);
   const [showProgress, setShowProgress] = useState(false);
@@ -38,7 +70,7 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
     motorista_fone: '',
     cavalo_placa: '',
     carreta_placa: '',
-    local_cidade: 'AP. DE GOIANIA/GO',
+    local_cidade: '',
     data_recibo: new Date().toISOString().split('T')[0],
     deposito_chave_pix: '',
     deposito_favorecido: '',
@@ -51,21 +83,21 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
   useEffect(() => {
     if (editData) {
       setFormData({
-        valor: editData.valor?.toString() || '',
+        valor: formatToBrazilianInput(editData.valor),
         recebi_de: editData.recebi_de || '',
         quantia_de: editData.quantia_de || '',
         correspondente_a: editData.correspondente_a || '',
         transporte_de: editData.transporte_de || '',
         origem: editData.origem || '',
         destino: editData.destino || '',
-        adiantamento: editData.adiantamento?.toString() || '',
-        saldo_receber: editData.saldo_receber?.toString() || '',
+        adiantamento: formatToBrazilianInput(editData.adiantamento),
+        saldo_receber: formatToBrazilianInput(editData.saldo_receber),
         motorista_nome: editData.motorista_nome || '',
         motorista_pix: editData.motorista_pix || '',
         motorista_fone: editData.motorista_fone || '',
         cavalo_placa: editData.cavalo_placa || '',
         carreta_placa: editData.carreta_placa || '',
-        local_cidade: editData.local_cidade || 'AP. DE GOIANIA/GO',
+        local_cidade: editData.local_cidade || '',
         data_recibo: editData.data_recibo || new Date().toISOString().split('T')[0],
         deposito_chave_pix: editData.deposito_chave_pix || '',
         deposito_favorecido: editData.deposito_favorecido || '',
@@ -75,7 +107,7 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
 
   // Atualiza quantia por extenso quando o valor muda
   useEffect(() => {
-    const numValor = parseFloat(formData.valor);
+    const numValor = parseBrazilianValue(formData.valor);
     if (!isNaN(numValor) && numValor > 0 && !editData) {
       const extenso = numeroParaExtenso(numValor);
       setFormData((prev) => ({ ...prev, quantia_de: extenso }));
@@ -87,6 +119,14 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    if (!value) return;
+    const parsed = parseBrazilianValue(value);
+    const formatted = formatToBrazilianInput(parsed);
+    setFormData((prev) => ({ ...prev, [name]: formatted }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     // Abre a animação premium de geração de PDF
@@ -96,9 +136,9 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
     setLoading(true);
 
     try {
-      const numValor = parseFloat(formData.valor) || 0;
-      const numAdiantamento = parseFloat(formData.adiantamento) || 0;
-      const numSaldo = parseFloat(formData.saldo_receber) || 0;
+      const numValor = parseBrazilianValue(formData.valor) || 0;
+      const numAdiantamento = parseBrazilianValue(formData.adiantamento) || 0;
+      const numSaldo = parseBrazilianValue(formData.saldo_receber) || 0;
 
       const payload = {
         ...formData,
@@ -190,12 +230,13 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
                 Valor Recibo (R$)
               </label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 name="valor"
                 value={formData.valor}
                 onChange={handleChange}
-                placeholder="Ex: 9870.00"
+                onBlur={handleBlur}
+                placeholder="Ex: 15.567,00"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
               />
             </div>
@@ -293,12 +334,13 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
                 Adiantamento (R$)
               </label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 name="adiantamento"
                 value={formData.adiantamento}
                 onChange={handleChange}
-                placeholder="Ex: 2770.00"
+                onBlur={handleBlur}
+                placeholder="Ex: 2.770,00"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
               />
             </div>
@@ -307,12 +349,13 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
                 Saldo a Receber (R$)
               </label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="decimal"
                 name="saldo_receber"
                 value={formData.saldo_receber}
                 onChange={handleChange}
-                placeholder="Ex: 5580.00"
+                onBlur={handleBlur}
+                placeholder="Ex: 5.580,00"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
               />
             </div>
