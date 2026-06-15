@@ -63,28 +63,38 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
 
       {/* Box: Cliente / Destinatário */}
       <div className="border-2 border-black p-3 mb-4 space-y-2 text-sm">
-        <div>
-          <span className="font-extrabold">CLIENTE:</span>{' '}
-          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.cliente}</span>
+        <div className="flex items-start">
+          <span className="font-extrabold whitespace-nowrap pt-[2px]">CLIENTE:</span>
+          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+            {data.cliente}
+          </span>
         </div>
-        <div className="grid grid-cols-3 gap-2">
-          <div className="col-span-2">
-            <span className="font-extrabold">ENDEREÇO:</span>{' '}
-            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.endereco || ''}</span>
+        <div className="flex gap-4 items-start">
+          <div className="flex-1 flex items-start">
+            <span className="font-extrabold whitespace-nowrap pt-[2px]">ENDEREÇO:</span>
+            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+              {data.endereco || ''}
+            </span>
           </div>
-          <div>
-            <span className="font-extrabold">CIDADE:</span>{' '}
-            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.cidade || ''}</span>
+          <div className="w-[30%] flex items-start">
+            <span className="font-extrabold whitespace-nowrap pt-[2px]">CIDADE:</span>
+            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+              {data.cidade || ''}
+            </span>
           </div>
         </div>
         <div className="border-t border-black my-2"></div>
-        <div>
-          <span className="font-extrabold">DESTINATÁRIO:</span>{' '}
-          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.destinatario}</span>
+        <div className="flex items-start">
+          <span className="font-extrabold whitespace-nowrap pt-[2px]">DESTINATÁRIO:</span>
+          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+            {data.destinatario}
+          </span>
         </div>
-        <div>
-          <span className="font-extrabold">CIDADE:</span>{' '}
-          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.cidade_destinatario || ''}</span>
+        <div className="flex items-start">
+          <span className="font-extrabold whitespace-nowrap pt-[2px]">CIDADE:</span>
+          <span className="font-mono text-base ml-2 uppercase underline decoration-dotted flex-1 break-words leading-tight">
+            {data.cidade_destinatario || ''}
+          </span>
         </div>
       </div>
 
@@ -109,22 +119,26 @@ export const PedidoCarregamentoTemplate: React.FC<PedidoTemplateProps> = ({ data
       </div>
 
       {/* Box: Placa / Motorista */}
-      <div className="border-2 border-black p-3 mb-6 grid grid-cols-2 gap-4 text-sm">
-        <div className="space-y-2">
-          <div>
-            <span className="font-extrabold">VEICULO PLACA:</span>{' '}
-            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.veiculo_placa || ''}</span>
+      <div className="border-2 border-black p-3 mb-6 flex gap-4 text-sm">
+        <div className="flex-1 space-y-2">
+          <div className="flex items-start">
+            <span className="font-extrabold whitespace-nowrap pt-[2px]">VEICULO PLACA:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+              {data.veiculo_placa || ''}
+            </span>
           </div>
-          <div>
-            <span className="font-extrabold">CARRETA PLACA:</span>{' '}
-            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.carreta_placa || ''}</span>
+          <div className="flex items-start">
+            <span className="font-extrabold whitespace-nowrap pt-[2px]">CARRETA PLACA:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+              {data.carreta_placa || ''}
+            </span>
           </div>
         </div>
-        <div className="flex flex-col justify-center border-l-2 border-black pl-4">
-          <div>
-            <span className="font-extrabold">MOTORISTA:</span>{' '}
-            <span className="font-mono text-base ml-2 uppercase underline decoration-dotted">{data.motorista_nome}</span>
-          </div>
+        <div className="w-[50%] flex items-start border-l-2 border-black pl-4">
+          <span className="font-extrabold whitespace-nowrap pt-[2px]">MOTORISTA:</span>
+          <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+            {data.motorista_nome}
+          </span>
         </div>
       </div>
 
@@ -202,47 +216,51 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
 
       {/* Body Content */}
       <div className="border-2 border-black p-4 space-y-4 text-sm leading-relaxed mb-4">
-        <p>
-          <span className="font-extrabold uppercase">Recebi(emos) de:</span>{' '}
-          <span className="font-mono text-base uppercase underline ml-2 inline-block w-[78%] decoration-dotted">
+        <div className="flex items-start">
+          <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">Recebi(emos) de:</span>
+          <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
             {data.recebi_de}
           </span>
-        </p>
-        <p>
-          <span className="font-extrabold uppercase">a quantia de:</span>{' '}
-          <span className="font-mono text-base uppercase underline ml-2 inline-block w-[79%] decoration-dotted">
+        </div>
+        <div className="flex items-start">
+          <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">a quantia de:</span>
+          <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
             {data.quantia_de}
           </span>
-        </p>
-        <p>
-          <span className="font-extrabold uppercase">Correspondente a:</span>{' '}
-          <span className="font-mono text-base underline ml-2 inline-block w-[77%] decoration-dotted">
+        </div>
+        <div className="flex items-start">
+          <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">Correspondente a:</span>
+          <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
             {data.correspondente_a || ''}
           </span>
-        </p>
-        <p>
-          <span className="font-extrabold uppercase">do Transportes de:</span>{' '}
-          <span className="font-mono text-base uppercase underline ml-2 inline-block w-[35%] decoration-dotted">
-            {data.transporte_de || ''}
-          </span>{' '}
-          <span className="font-extrabold uppercase">de ORIGEM:</span>{' '}
-          <span className="font-mono text-base uppercase underline ml-1 inline-block w-[30%] decoration-dotted">
-            {data.origem || ''}
-          </span>
-        </p>
-        <div className="flex justify-between items-center pt-1">
-          <p className="w-1/2">
-            <span className="font-extrabold uppercase">DESTINO:</span>{' '}
-            <span className="font-mono text-base uppercase underline ml-2 inline-block w-[70%] decoration-dotted">
+        </div>
+        <div className="flex flex-row gap-4 items-start">
+          <div className="flex-1 flex items-start">
+            <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">do Transportes de:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+              {data.transporte_de || ''}
+            </span>
+          </div>
+          <div className="w-[45%] flex items-start">
+            <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">de ORIGEM:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+              {data.origem || ''}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-row gap-4 items-start">
+          <div className="flex-1 flex items-start">
+            <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">DESTINO:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
               {data.destino || ''}
             </span>
-          </p>
-          <p className="w-1/2 text-right">
-            <span className="font-extrabold uppercase">ADIANTAMENTO:</span>{' '}
-            <span className="font-mono text-base underline ml-2 inline-block w-[50%] decoration-dotted text-center">
+          </div>
+          <div className="w-[45%] flex items-start">
+            <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">ADIANTAMENTO:</span>
+            <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight text-center">
               {data.adiantamento ? formatarMoeda(data.adiantamento) : ''}
             </span>
-          </p>
+          </div>
         </div>
         <div className="border-t border-black my-2"></div>
         <div className="flex justify-between items-center">
@@ -257,45 +275,57 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
 
       {/* Driver Info */}
       <div className="border-2 border-black p-4 space-y-3 text-sm mb-4">
-        <div>
-          <span className="font-extrabold uppercase">MOTORISTA:</span>{' '}
-          <span className="font-mono text-base uppercase underline ml-2 decoration-dotted">{data.motorista_nome}</span>
+        <div className="flex flex-row gap-4 items-start">
+          <div className="flex-1 flex items-start">
+            <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">MOTORISTA:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+              {data.motorista_nome}
+            </span>
+          </div>
           {data.motorista_cpf && (
-            <>
-              <span className="font-extrabold ml-4 uppercase">CPF:</span>{' '}
-              <span className="font-mono text-base underline ml-2 decoration-dotted">{data.motorista_cpf}</span>
-            </>
+            <div className="w-[40%] flex items-start">
+              <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">CPF:</span>
+              <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+                {data.motorista_cpf}
+              </span>
+            </div>
           )}
         </div>
 
         {(data.motorista_conta || data.motorista_pix) && (
-          <div>
+          <div className="flex flex-row gap-4 items-start">
             {data.motorista_conta && (
-              <>
-                <span className="font-extrabold uppercase">CONTA:</span>{' '}
-                <span className="font-mono text-base underline ml-2 decoration-dotted">
+              <div className="flex-1 flex items-start">
+                <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">CONTA:</span>
+                <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
                   {data.motorista_conta}
                   {data.motorista_conta_digito ? `-${data.motorista_conta_digito}` : ''}
                 </span>
-              </>
+              </div>
             )}
             {data.motorista_pix && (
-              <>
-                <span className={`font-extrabold uppercase ${data.motorista_conta ? 'ml-4' : ''}`}>Pix:</span>{' '}
-                <span className="font-mono text-base underline ml-2 decoration-dotted">{data.motorista_pix}</span>
-              </>
+              <div className={`${data.motorista_conta ? 'w-[40%]' : 'flex-1'} flex items-start`}>
+                <span className="font-extrabold uppercase whitespace-nowrap pt-[2px]">Pix:</span>
+                <span className="font-mono text-base underline ml-2 flex-1 decoration-dotted break-words leading-tight">
+                  {data.motorista_pix}
+                </span>
+              </div>
             )}
           </div>
         )}
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <span className="font-extrabold uppercase text-orange-600">CAVALO PLACA:</span>{' '}
-            <span className="font-mono text-base uppercase underline ml-2 decoration-dotted text-orange-600">{data.cavalo_placa || ''}</span>
+        <div className="flex flex-row gap-4 items-start">
+          <div className="flex-1 flex items-start">
+            <span className="font-extrabold uppercase text-orange-600 whitespace-nowrap pt-[2px]">CAVALO PLACA:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight text-orange-600">
+              {data.cavalo_placa || ''}
+            </span>
           </div>
-          <div>
-            <span className="font-extrabold uppercase text-orange-600">CARRETA PLACA:</span>{' '}
-            <span className="font-mono text-base uppercase underline ml-2 decoration-dotted text-orange-600">{data.carreta_placa || ''}</span>
+          <div className="w-[45%] flex items-start">
+            <span className="font-extrabold uppercase text-orange-600 whitespace-nowrap pt-[2px]">CARRETA PLACA:</span>
+            <span className="font-mono text-base uppercase underline ml-2 flex-1 decoration-dotted break-words leading-tight text-orange-600">
+              {data.carreta_placa || ''}
+            </span>
           </div>
         </div>
       </div>
@@ -313,15 +343,15 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
           <div className="text-xs font-black text-gray-700 border-b border-gray-200 pb-1 uppercase tracking-wider">
             Dados para Depósito / PIX
           </div>
-          <div>
-            <span className="font-extrabold text-xs text-orange-600">PIX CHAVE:</span>{' '}
-            <span className="font-mono text-sm ml-2 font-semibold text-orange-600">
+          <div className="flex items-start">
+            <span className="font-extrabold text-xs text-orange-600 whitespace-nowrap pt-[1px]">PIX CHAVE:</span>
+            <span className="font-mono text-sm ml-2 font-semibold text-orange-600 flex-1 break-all leading-tight">
               {data.deposito_chave_pix || ''}
             </span>
           </div>
-          <div>
-            <span className="font-extrabold text-xs text-orange-600">FAVORECIDO:</span>{' '}
-            <span className="font-mono text-sm ml-2 font-semibold text-orange-600">
+          <div className="flex items-start">
+            <span className="font-extrabold text-xs text-orange-600 whitespace-nowrap pt-[1px]">FAVORECIDO:</span>
+            <span className="font-mono text-sm ml-2 font-semibold text-orange-600 flex-1 break-words leading-tight">
               {data.deposito_favorecido || ''}
             </span>
           </div>
