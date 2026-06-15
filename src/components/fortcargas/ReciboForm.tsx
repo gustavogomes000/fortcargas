@@ -61,7 +61,7 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
     quantia_de: '',
     correspondente_a: '',
     transporte_de: '',
-    origem: 'APARECIDA DE GOIANIA/GO',
+    origem: '',
     destino: '',
     adiantamento: '',
     saldo_receber: '',
