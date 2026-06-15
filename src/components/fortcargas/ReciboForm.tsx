@@ -81,6 +81,9 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
     motorista_nome: '',
     motorista_pix: '',
     motorista_fone: '',
+    motorista_cpf: '',
+    motorista_conta: '',
+    motorista_conta_digito: '',
     cavalo_placa: '',
     carreta_placa: '',
     local_cidade: '',
@@ -108,6 +111,9 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
         motorista_nome: editData.motorista_nome || '',
         motorista_pix: editData.motorista_pix || '',
         motorista_fone: editData.motorista_fone || '',
+        motorista_cpf: editData.motorista_cpf || '',
+        motorista_conta: editData.motorista_conta || '',
+        motorista_conta_digito: editData.motorista_conta_digito || '',
         cavalo_placa: editData.cavalo_placa || '',
         carreta_placa: editData.carreta_placa || '',
         local_cidade: editData.local_cidade || '',
@@ -395,6 +401,48 @@ export const ReciboForm: React.FC<ReciboFormProps> = ({ editData, onSuccess, onC
                 value={formData.motorista_nome}
                 onChange={handleChange}
                 placeholder="Nome completo do motorista"
+                className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                CPF do Motorista
+              </label>
+              <input
+                type="text"
+                name="motorista_cpf"
+                value={formData.motorista_cpf}
+                onChange={handleChange}
+                placeholder="Ex: 000.000.000-00"
+                className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                Conta Bancária
+              </label>
+              <input
+                type="text"
+                name="motorista_conta"
+                value={formData.motorista_conta}
+                onChange={handleChange}
+                placeholder="Ex: 123456"
+                className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 uppercase mb-1">
+                Dígito da Conta
+              </label>
+              <input
+                type="text"
+                name="motorista_conta_digito"
+                value={formData.motorista_conta_digito}
+                onChange={handleChange}
+                placeholder="Ex: 7"
                 className="w-full text-sm rounded-lg border border-gray-200 px-3.5 py-2.5 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 bg-gray-50/50"
               />
             </div>

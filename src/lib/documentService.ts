@@ -32,6 +32,9 @@ export interface ReciboData {
   motorista_nome: string;
   motorista_pix?: string;
   motorista_fone?: string;
+  motorista_cpf?: string;
+  motorista_conta?: string;
+  motorista_conta_digito?: string;
   cavalo_placa?: string;
   carreta_placa?: string;
   local_cidade?: string;

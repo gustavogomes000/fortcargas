@@ -164,6 +164,9 @@ interface ReciboTemplateProps {
     motorista_nome: string;
     motorista_pix?: string;
     motorista_fone?: string;
+    motorista_cpf?: string;
+    motorista_conta?: string;
+    motorista_conta_digito?: string;
     cavalo_placa?: string;
     carreta_placa?: string;
     local_cidade?: string;
@@ -243,9 +246,9 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
         </div>
         <div className="border-t border-black my-2"></div>
         <div className="flex justify-between items-center">
-          <span className="font-black text-red-700 text-sm uppercase">
+          <span className="font-black text-orange-600 text-sm uppercase">
             SALDO A RECEBER:{' '}
-            <span className="font-mono text-base underline ml-2 text-black decoration-dotted">
+            <span className="font-mono text-base underline ml-2 text-orange-600 decoration-dotted">
               {formatarMoeda(data.saldo_receber)}
             </span>
           </span>
@@ -257,21 +260,42 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
         <div>
           <span className="font-extrabold uppercase">MOTORISTA:</span>{' '}
           <span className="font-mono text-base uppercase underline ml-2 decoration-dotted">{data.motorista_nome}</span>
-          {data.motorista_pix && (
+          {data.motorista_cpf && (
             <>
-              <span className="font-extrabold ml-4 uppercase">Pix:</span>{' '}
-              <span className="font-mono text-base underline ml-2 decoration-dotted">{data.motorista_pix}</span>
+              <span className="font-extrabold ml-4 uppercase">CPF:</span>{' '}
+              <span className="font-mono text-base underline ml-2 decoration-dotted">{data.motorista_cpf}</span>
             </>
           )}
         </div>
+
+        {(data.motorista_conta || data.motorista_pix) && (
+          <div>
+            {data.motorista_conta && (
+              <>
+                <span className="font-extrabold uppercase">CONTA:</span>{' '}
+                <span className="font-mono text-base underline ml-2 decoration-dotted">
+                  {data.motorista_conta}
+                  {data.motorista_conta_digito ? `-${data.motorista_conta_digito}` : ''}
+                </span>
+              </>
+            )}
+            {data.motorista_pix && (
+              <>
+                <span className={`font-extrabold uppercase ${data.motorista_conta ? 'ml-4' : ''}`}>Pix:</span>{' '}
+                <span className="font-mono text-base underline ml-2 decoration-dotted">{data.motorista_pix}</span>
+              </>
+            )}
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <span className="font-extrabold uppercase">CAVALO PLACA:</span>{' '}
-            <span className="font-mono text-base uppercase underline ml-2 decoration-dotted">{data.cavalo_placa || ''}</span>
+            <span className="font-extrabold uppercase text-orange-600">CAVALO PLACA:</span>{' '}
+            <span className="font-mono text-base uppercase underline ml-2 decoration-dotted text-orange-600">{data.cavalo_placa || ''}</span>
           </div>
           <div>
-            <span className="font-extrabold uppercase">CARRETA PLACA:</span>{' '}
-            <span className="font-mono text-base uppercase underline ml-2 decoration-dotted">{data.carreta_placa || ''}</span>
+            <span className="font-extrabold uppercase text-orange-600">CARRETA PLACA:</span>{' '}
+            <span className="font-mono text-base uppercase underline ml-2 decoration-dotted text-orange-600">{data.carreta_placa || ''}</span>
           </div>
         </div>
       </div>
@@ -290,14 +314,14 @@ export const ReciboTemplate: React.FC<ReciboTemplateProps> = ({ data }) => {
             Dados para Depósito / PIX
           </div>
           <div>
-            <span className="font-extrabold text-xs">PIX CHAVE:</span>{' '}
-            <span className="font-mono text-sm ml-2 font-semibold text-gray-900">
+            <span className="font-extrabold text-xs text-orange-600">PIX CHAVE:</span>{' '}
+            <span className="font-mono text-sm ml-2 font-semibold text-orange-600">
               {data.deposito_chave_pix || ''}
             </span>
           </div>
           <div>
-            <span className="font-extrabold text-xs">FAVORECIDO:</span>{' '}
-            <span className="font-mono text-sm ml-2 font-semibold text-gray-900">
+            <span className="font-extrabold text-xs text-orange-600">FAVORECIDO:</span>{' '}
+            <span className="font-mono text-sm ml-2 font-semibold text-orange-600">
               {data.deposito_favorecido || ''}
             </span>
           </div>
