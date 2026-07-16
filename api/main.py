@@ -15,7 +15,7 @@ import pathlib
 load_dotenv(pathlib.Path(__file__).parent.parent / ".env")
 
 import duckdb
-from fastapi import FastAPI, HTTPException, Path, Query
+from fastapi import FastAPI, HTTPException, Path, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 from pydantic import BaseModel, Field
@@ -577,14 +577,21 @@ def chat_eleicoes(req: ChatRequest):
 # PING / KEEP-ALIVE SUPABASE (Despertador)
 # ---------------------------------------------------------------------------
 @app.get("/api/keep-alive", tags=["Keep Alive"])
-def keep_alive():
+def keep_alive(response: Response):
     """
     Executa consultas leves em ambos os bancos de dados Supabase (o padrão do MVP
     e o específico do Fort Cargas) para mantê-los ativos e evitar a hibernação automática.
+
+    Importante: um ping NÃO reativa um projeto que já pausou por inatividade — só
+    evita que ele pause. Se este endpoint parar de rodar por vários dias seguidos
+    (falha do cron do Vercel, deploy quebrado, etc.), o projeto Free tier do
+    Supabase pausa mesmo assim e precisa ser reativado manualmente no dashboard.
+    Por isso os erros aqui são logados com destaque e o endpoint retorna HTTP 502
+    quando algum ping falha — para aparecer nos logs/monitoramento do Vercel.
     """
     results = {}
     from supabase import create_client
-    
+
     # 1. Ping no Supabase do MVP (Estatísticas Eleitorais)
     mvp_url = os.getenv("SUPABASE_URL")
     mvp_key = os.getenv("SUPABASE_KEY")
@@ -594,8 +601,10 @@ def keep_alive():
             client_mvp.table("conhecimento_ia").select("id").limit(1).execute()
             results["supabase_mvp"] = "success"
         except Exception as e:
+            logger.error(f"[keep-alive] Falha ao pingar Supabase MVP: {e}")
             results["supabase_mvp"] = f"error: {str(e)}"
     else:
+        logger.warning("[keep-alive] SUPABASE_URL/SUPABASE_KEY não configurados no ambiente")
         results["supabase_mvp"] = "not_configured"
 
     # 2. Ping no Supabase do Fort Cargas
@@ -606,9 +615,17 @@ def keep_alive():
         client_fc.table("pedidos_carregamento").select("id").limit(1).execute()
         results["supabase_fort_cargas"] = "success"
     except Exception as e:
+        logger.error(f"[keep-alive] Falha ao pingar Supabase Fort Cargas: {e}")
         results["supabase_fort_cargas"] = f"error: {str(e)}"
 
-    return {"status": "completed", "results": results}
+    # "not_configured" não conta como falha do ping em si (ex: MVP pode não ter
+    # env vars neste deploy) — só reprova de fato quem tentou e deu erro.
+    all_ok = all(v in ("success", "not_configured") for v in results.values())
+    if not all_ok:
+        logger.error(f"[keep-alive] Execução com falhas: {results}")
+        response.status_code = 502
+
+    return {"status": "completed" if all_ok else "degraded", "ok": all_ok, "results": results}
 
 
 # ---------------------------------------------------------------------------

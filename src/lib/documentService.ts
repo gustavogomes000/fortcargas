@@ -52,6 +52,20 @@ function generateUUID(): string {
   return 'local_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
 }
 
+const FETCH_TIMEOUT_MS = 8000;
+
+// Garante que uma chamada ao Supabase nunca trave a UI para sempre — se não
+// responder em tempo hábil (rede ruim, sessão de auth travada, etc.), cai no
+// fallback local em vez de deixar o spinner girando pra sempre.
+function withTimeout<T>(promise: PromiseLike<T>, ms = FETCH_TIMEOUT_MS): Promise<T> {
+  return Promise.race([
+    Promise.resolve(promise),
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error('Tempo de conexão com o servidor esgotado')), ms);
+    }),
+  ]);
+}
+
 export const documentService = {
   /**
    * Salva um Pedido de Carregamento (tenta Supabase, cai para LocalStorage se der erro)
@@ -253,54 +267,65 @@ export const documentService = {
   },
 
   /**
-   * Busca lista de Pedidos combinada (Supabase + LocalStorage)
+   * Busca lista de Pedidos combinada (Supabase + LocalStorage).
+   * `error` vem preenchido quando o Supabase falhou e a lista é só o fallback local —
+   * evita que uma falha (ex: RLS bloqueando leitura) pareça "histórico vazio" sem explicação.
    */
-  async getPedidos(): Promise<PedidoData[]> {
+  async getPedidos(): Promise<{ items: PedidoData[]; error: string | null }> {
     try {
-      await this.syncOfflineData();
+      await withTimeout(this.syncOfflineData());
     } catch (e) {}
 
     const localItems = this.getLocalPedidos();
     try {
-      const { data: dbItems, error } = await supabase
-        .from('pedidos_carregamento')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data: dbItems, error } = await withTimeout(
+        supabase
+          .from('pedidos_carregamento')
+          .select('*')
+          .order('created_at', { ascending: false })
+      );
 
       if (error) throw error;
 
       // Junta as listas
       const merged = [...localItems, ...(dbItems || [])];
       // Ordena por data de criação decrescente
-      return merged.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    } catch (err) {
+      merged.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      return { items: merged, error: null };
+    } catch (err: unknown) {
       console.warn("Erro ao buscar do Supabase, retornando apenas locais:", err);
-      return localItems;
+      const message = err instanceof Error ? err.message : 'Falha ao conectar com o servidor';
+      return { items: localItems, error: message };
     }
   },
 
   /**
-   * Busca lista de Recibos combinada (Supabase + LocalStorage)
+   * Busca lista de Recibos combinada (Supabase + LocalStorage).
+   * `error` vem preenchido quando o Supabase falhou e a lista é só o fallback local.
    */
-  async getRecibos(): Promise<ReciboData[]> {
+  async getRecibos(): Promise<{ items: ReciboData[]; error: string | null }> {
     try {
-      await this.syncOfflineData();
+      await withTimeout(this.syncOfflineData());
     } catch (e) {}
 
     const localItems = this.getLocalRecibos();
     try {
-      const { data: dbItems, error } = await supabase
-        .from('recibos')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const { data: dbItems, error } = await withTimeout(
+        supabase
+          .from('recibos')
+          .select('*')
+          .order('created_at', { ascending: false })
+      );
 
       if (error) throw error;
 
       const merged = [...localItems, ...(dbItems || [])];
-      return merged.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
-    } catch (err) {
+      merged.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
+      return { items: merged, error: null };
+    } catch (err: unknown) {
       console.warn("Erro ao buscar do Supabase, retornando apenas locais:", err);
-      return localItems;
+      const message = err instanceof Error ? err.message : 'Falha ao conectar com o servidor';
+      return { items: localItems, error: message };
     }
   },
 

@@ -8,10 +8,15 @@ const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_g-pWN0mbtbYl3Hgjf8DfFQ_5UIqBWyd
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// O Fort Cargas não tem tela de login (usa só a chave pública/anon em todas as
+// requisições). Com persistSession/autoRefreshToken ligados, o supabase-js
+// tenta resolver uma sessão de auth antes de QUALQUER query — inclusive
+// selects no histórico — e se sobrar um token velho/inválido no localStorage
+// (ex: de testes, ou de outro app que rodou nesta mesma origem), essa
+// resolução pode travar, e toda consulta fica pendurada pra sempre.
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+    persistSession: false,
+    autoRefreshToken: false,
   }
 });

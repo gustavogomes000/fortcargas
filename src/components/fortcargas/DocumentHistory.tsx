@@ -7,9 +7,9 @@ import { shareDocumentOnWhatsApp } from '@/lib/whatsappShare';
 import { PedidoCarregamentoTemplate, ReciboTemplate } from './DocumentTemplates';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  Search, Calendar, Download, Send, Edit, Trash2, FileText, 
-  ChevronRight, RefreshCw, Loader2, ArrowRightLeft 
+import {
+  Search, Calendar, Download, Send, Edit, Trash2, FileText,
+  ChevronRight, RefreshCw, Loader2, ArrowRightLeft, AlertTriangle
 } from 'lucide-react';
 
 interface DocumentHistoryProps {
@@ -23,7 +23,8 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
   const [pedidos, setPedidos] = useState<any[]>([]);
   const [recibos, setRecibos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  
+  const [syncError, setSyncError] = useState<string | null>(null);
+
   // Filtros
   const [search, setSearch] = useState('');
   const [dateFilter, setDateFilter] = useState('');
@@ -37,14 +38,23 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [pedidosData, recibosData] = await Promise.all([
+      const [pedidosResult, recibosResult] = await Promise.all([
         documentService.getPedidos(),
         documentService.getRecibos()
       ]);
-      setPedidos(pedidosData || []);
-      setRecibos(recibosData || []);
+      setPedidos(pedidosResult.items || []);
+      setRecibos(recibosResult.items || []);
+
+      // Se o Supabase falhou em qualquer uma das buscas, avisa visivelmente —
+      // sem isso, uma falha de sincronização parecia "histórico sumiu" sem pista nenhuma.
+      const failure = pedidosResult.error || recibosResult.error;
+      setSyncError(failure);
+      if (failure) {
+        toast.error('Não foi possível sincronizar com o servidor. Exibindo apenas itens salvos neste aparelho.');
+      }
     } catch (error: any) {
       console.error('Erro ao buscar dados:', error);
+      setSyncError(error?.message || 'Erro desconhecido');
       toast.error('Erro ao carregar histórico: ' + error.message);
     } finally {
       setLoading(false);
@@ -92,14 +102,19 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
     }
   }, []);
 
-  // Sincronização ao focar a aba/janela do navegador (ex: alternar celular -> computador)
+  // Sincronização ao reabrir/voltar ao app (troca de aba, ou fechar/abrir o PWA instalado).
+  // `visibilitychange` é usado em vez de `focus` porque, em PWA instalado no celular,
+  // minimizar e reabrir o app nem sempre dispara `focus` de forma confiável — e os dois
+  // eventos costumam disparar juntos, o que duplicaria a busca desnecessariamente.
   useEffect(() => {
-    const handleFocus = () => {
-      fetchData();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
     };
-    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibility);
     return () => {
-      window.removeEventListener('focus', handleFocus);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 
@@ -232,6 +247,26 @@ export const DocumentHistory: React.FC<DocumentHistoryProps> = ({ onEditPedido, 
 
   return (
     <div className="space-y-6">
+      {/* Aviso visível quando a sincronização com o servidor falha */}
+      {syncError && (
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl p-4">
+          <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
+          <div className="flex-1 text-sm">
+            <p className="font-bold">Sem conexão com o servidor</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              Exibindo apenas documentos salvos neste aparelho. Verifique sua internet e tente novamente.
+            </p>
+          </div>
+          <button
+            onClick={fetchData}
+            disabled={loading}
+            className="shrink-0 text-xs font-bold bg-amber-100 hover:bg-amber-200 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
+
       {/* Abas e Filtros */}
       <div className="bg-white rounded-2xl p-4 shadow-md border border-sky-50/50 flex flex-col gap-4">
         {/* Toggle das abas */}
